@@ -1,0 +1,61 @@
+name: Sync Safe Extensions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"   # every 12 hours
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download extension list
+        run: |
+          curl -L \
+          https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json \
+          -o index.min.json
+
+      - name: Filter adult extensions
+        run: |
+          python <<EOF
+          import json
+
+          BLOCKLIST = [
+              "hentai",
+              "adult",
+              "nsfw",
+              "yaoi",
+              "yuri"
+          ]
+
+          with open("index.min.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          filtered = []
+          for ext in data:
+              name = ext.get("name", "").lower()
+              if not any(word in name for word in BLOCKLIST):
+                  filtered.append(ext)
+
+          with open("index.min.json", "w", encoding="utf-8") as f:
+              json.dump(filtered, f, separators=(",", ":"))
+          EOF
+
+      - name: Commit changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add index.min.json
+          git commit -m "Update filtered extensions" || echo "No changes"
+
+      - name: Push
+        run: git push
