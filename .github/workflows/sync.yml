@@ -1,6 +1,6 @@
 name: Sync Safe Extensions
 
-on:
+"on":
   workflow_dispatch:
   schedule:
     - cron: "0 */12 * * *"
