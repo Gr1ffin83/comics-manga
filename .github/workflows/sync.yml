@@ -26,23 +26,23 @@ jobs:
 
       - name: Filter adult extensions
         run: |
-          python <<EOF
-          import json
+          python <<'EOF'
+import json
 
-          BLOCKLIST = ["hentai", "adult", "nsfw", "yaoi", "yuri"]
+BLOCKLIST = ["hentai", "adult", "nsfw", "yaoi", "yuri"]
 
-          with open("index.min.json", "r", encoding="utf-8") as f:
-              data = json.load(f)
+with open("index.min.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
 
-          filtered = []
-          for ext in data:
-              name = ext.get("name", "").lower()
-              if not any(word in name for word in BLOCKLIST):
-                  filtered.append(ext)
+filtered = []
+for ext in data:
+    name = ext.get("name", "").lower()
+    if not any(word in name for word in BLOCKLIST):
+        filtered.append(ext)
 
-          with open("index.min.json", "w", encoding="utf-8") as f:
-              json.dump(filtered, f, separators=(",", ":"))
-          EOF
+with open("index.min.json", "w", encoding="utf-8") as f:
+    json.dump(filtered, f, separators=(",", ":"))
+EOF
 
       - name: Commit changes
         run: |
