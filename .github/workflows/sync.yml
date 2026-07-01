@@ -1,16 +1,16 @@
 name: Sync Safe Extensions
 
-"on":
+on:
   workflow_dispatch:
   schedule:
     - cron: "0 */12 * * *"
-permissions: 
-contents: write
+
+permissions:
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
