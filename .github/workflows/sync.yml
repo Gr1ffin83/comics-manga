@@ -26,7 +26,10 @@ jobs:
           blocklist = ["hentai", "adult", "nsfw", "yaoi", "yuri"]
           with open("index.min.json", "r", encoding="utf-8") as f:
               data = json.load(f)
-          filtered = [ext for ext in data if not any(word in ext.get("name", "").lower() for word in blocklist)]
+          filtered = [
+    ext for ext in data
+    if ext.get("nsfw", 0) != 1
+]
           with open("index.min.json", "w", encoding="utf-8") as f:
               json.dump(filtered, f, separators=(",", ":"))
           '
