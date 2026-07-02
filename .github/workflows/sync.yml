@@ -27,26 +27,28 @@ jobs:
           with open("index.min.json", "r", encoding="utf-8") as f:
               data = json.load(f)
 
-          allowlist = [
+                    allowlist = [
               "manganato",
               "allmanga",
               "mangafire",
-              "asura scans",
+              "asura",
               "weeb central",
-              "mangaread.org",
+              "mangaread",
               "real life comics",
               "tappytoon",
           ]
 
-          filtered = [
-              ext for ext in data
-              if ext.get("nsfw", 0) == 0
-              or any(name in ext.get("name", "").lower() for name in allowlist)
-          ]
+          filtered = []
+          for ext in data:
+              text = ext.get("name", "").lower()
+              for source in ext.get("sources", []):
+                  text += " " + source.get("name", "").lower()
+
+              if ext.get("nsfw", 0) == 0 or any(word in text for word in allowlist):
+                  filtered.append(ext)
 
           with open("index.min.json", "w", encoding="utf-8") as f:
               json.dump(filtered, f, separators=(",", ":"))
-
       - name: Commit and push changes
         run: |
           git config user.name github-actions
