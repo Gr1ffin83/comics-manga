@@ -22,16 +22,30 @@ jobs:
       - name: Filter adult extensions
         run: |
           python <<EOF
-          import json
+                    import json
 
           with open("index.min.json", "r", encoding="utf-8") as f:
               data = json.load(f)
 
-          filtered = [ext for ext in data if ext.get("nsfw", 0) == 0]
+          allowlist = [
+              "manganato",
+              "allmanga",
+              "mangafire",
+              "asura scans",
+              "weeb central",
+              "mangaread.org",
+              "real life comics",
+              "tappytoon",
+          ]
+
+          filtered = [
+              ext for ext in data
+              if ext.get("nsfw", 0) == 0
+              or any(name in ext.get("name", "").lower() for name in allowlist)
+          ]
 
           with open("index.min.json", "w", encoding="utf-8") as f:
               json.dump(filtered, f, separators=(",", ":"))
-          EOF
 
       - name: Commit and push changes
         run: |
