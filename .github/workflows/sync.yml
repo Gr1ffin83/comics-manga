@@ -19,15 +19,15 @@ jobs:
       - name: Download extension list
         run: curl -L https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json -o index.min.json
 
-      - name: Filter adult extensions
+            - name: Filter adult extensions
         run: |
           python <<EOF
-                    import json
+          import json
 
           with open("index.min.json", "r", encoding="utf-8") as f:
               data = json.load(f)
 
-                    allowlist = [
+          allowlist = [
               "manganato",
               "allmanga",
               "mangafire",
@@ -49,6 +49,7 @@ jobs:
 
           with open("index.min.json", "w", encoding="utf-8") as f:
               json.dump(filtered, f, separators=(",", ":"))
+          EOF
       - name: Commit and push changes
         run: |
           git config user.name github-actions
