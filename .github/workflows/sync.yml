@@ -16,34 +16,65 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download extension list
-        run: curl -L https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json -o index.min.json
-
-      - name: Filter adult extensions
+      - name: Build filtered repo
         run: |
-          python <<'EOF'
+          python <<'PY'
           import json
-          with open("index.min.json", "r", encoding="utf-8") as f:
-              data = json.load(f)
+          import os
+          import urllib.request
 
-          allowlist = ["manganato", "allmanga", "mangafire", "asura", "weeb central", "mangaread", "real life comics", "tappytoon"]
+          INDEX_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
+          APK_BASE = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/"
+
+          allowlist = [
+              "manganato",
+              "allmanga",
+              "mangafire",
+              "asura",
+              "weeb central",
+              "mangaread",
+              "real life comics",
+              "tappytoon",
+          ]
+
+          with urllib.request.urlopen(INDEX_URL) as r:
+              data = json.load(r)
+
+          for file in os.listdir("."):
+              if file.endswith(".apk"):
+                  os.remove(file)
 
           filtered = []
           for ext in data:
               text = ext.get("name", "").lower()
               for source in ext.get("sources", []):
                   text += " " + source.get("name", "").lower()
-              if ext.get("nsfw", 0) == 0 or any(word in text for word in allowlist):
+
+              keep = ext.get("nsfw", 0) == 0 or any(word in text for word in allowlist)
+              if not keep:
+                  continue
+
+              apk = ext.get("apk")
+              if not apk:
+                  continue
+
+              try:
+                  urllib.request.urlretrieve(APK_BASE + apk, apk)
                   filtered.append(ext)
+                  print("Downloaded", apk)
+              except Exception as e:
+                  print("Skipped", apk, e)
 
           with open("index.min.json", "w", encoding="utf-8") as f:
               json.dump(filtered, f, separators=(",", ":"))
-          EOF
+
+          print("Kept", len(filtered), "extensions")
+          PY
 
       - name: Commit and push changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add index.min.json
-          git commit -m "Update filtered extensions" || exit 0
+          git add index.min.json *.apk
+          git commit -m "Update filtered extensions and APKs" || exit 0
           git push
