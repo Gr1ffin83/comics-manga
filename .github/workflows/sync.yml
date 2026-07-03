@@ -24,7 +24,7 @@ jobs:
           import urllib.request
 
           INDEX_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
-          APK_BASE = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/"
+          APK_BASE = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/"
 
           allowlist = [
               "manganato",
