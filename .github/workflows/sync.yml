@@ -38,11 +38,13 @@ jobs:
           ]
 
           with urllib.request.urlopen(INDEX_URL) as r:
-              data = json.load(r)
+    data = json.load(r)
 
-          for file in os.listdir("."):
-              if file.endswith(".apk"):
-                  os.remove(file)
+os.makedirs("apk", exist_ok=True)
+
+for file in os.listdir("apk"):
+    if file.endswith(".apk"):
+        os.remove(os.path.join("apk", file))
 
           filtered = []
           for ext in data:
@@ -59,7 +61,7 @@ jobs:
                   continue
 
               try:
-                  urllib.request.urlretrieve(APK_BASE + apk, apk)
+                  urllib.request.urlretrieve(APK_BASE + apk, os.path.join("apk", apk))
                   filtered.append(ext)
                   print("Downloaded", apk)
               except Exception as e:
@@ -76,6 +78,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add index.min.json
-          git add *.apk || true
+          git add apk/*.apk || true
           git commit -m "Update filtered extensions and APKs" || exit 0
           git push
