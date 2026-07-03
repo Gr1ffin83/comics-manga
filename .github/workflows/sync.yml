@@ -38,13 +38,13 @@ jobs:
           ]
 
           with urllib.request.urlopen(INDEX_URL) as r:
-    data = json.load(r)
+              data = json.load(r)
 
-os.makedirs("apk", exist_ok=True)
+          os.makedirs("apk", exist_ok=True)
 
-for file in os.listdir("apk"):
-    if file.endswith(".apk"):
-        os.remove(os.path.join("apk", file))
+          for file in os.listdir("apk"):
+              if file.endswith(".apk"):
+                  os.remove(os.path.join("apk", file))
 
           filtered = []
           for ext in data:
