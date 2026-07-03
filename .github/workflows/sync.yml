@@ -71,10 +71,11 @@ jobs:
           print("Kept", len(filtered), "extensions")
           PY
 
-      - name: Commit and push changes
+        - name: Commit and push changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add index.min.json *.apk
+          git add index.min.json
+          git add *.apk || true
           git commit -m "Update filtered extensions and APKs" || exit 0
           git push
